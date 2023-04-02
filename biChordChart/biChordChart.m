@@ -1,4 +1,6 @@
 classdef biChordChart
+% Copyright (c) 2022-2023, Zhaoxu Liu / slandarer
+% =========================================================================
 % @author : slandarer
 % 公众号  : slandarer随笔
 % 知乎    : slandarer

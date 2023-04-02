@@ -1,4 +1,6 @@
 classdef chordChart
+% Copyright (c) 2022-2023, Zhaoxu Liu / slandarer
+% =========================================================================
 % @author : slandarer
 % 公众号  : slandarer随笔
 % 知乎    : slandarer
@@ -6,7 +8,6 @@ classdef chordChart
 % Zhaoxu Liu (2022). chord chart 弦图 
 % (https://www.mathworks.com/matlabcentral/fileexchange/116550-chord-chart), 
 % MATLAB Central File Exchange. 检索来源 2022/11/9.
-%
 % =========================================================================
 % 使用示例：
 % -------------------------------------------------------------------------
