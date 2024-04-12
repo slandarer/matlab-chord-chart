@@ -13,7 +13,7 @@ CC=chordChart(dataMat,'rowName',rowName,'colName',colName);
 CC=CC.draw();
 
 % CC.setChordColorByMap([0,0,.8;.8,0,0])
-
+ 
 
 CC.setFont('FontSize',17,'FontName','Cambria')
 CC.tickState('on')

@@ -6,6 +6,9 @@ dataMat=[5 1 0 2;
          0 7 6 3;
          1 3 4 1;
          7 6 8 8];
+dataMat(:,1)=0;
+
+figure('Units','normalized','Position',[.02,.05,.6,.85])
 BCC=biChordChart(dataMat,'Arrow','on');
 BCC=BCC.draw();
 
@@ -24,7 +27,7 @@ BCC.tickLabelState('on')
 BCC.setTickFont('FontName','Cambria','Color',[0,0,.6])
 
 
-figure()
+figure('Units','normalized','Position',[.02,.05,.6,.85])
 dataMat=[5.213 1.231 0.000 2.835;
          0.000 7.674 6.565 3.085;
          1.534 3.676 4.467 1.654;
@@ -43,4 +46,5 @@ BCC.setLabelRadius(1.4);
 % Displays scales and numeric values
 BCC.tickState('on')
 BCC.tickLabelState('on')
+
 

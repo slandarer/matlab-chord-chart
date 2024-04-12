@@ -7,6 +7,8 @@ dataMat=randi([0,8],[6,6]);
 
 % 添加标签名称
 NameList={'CHORD','CHART','MADE','BY','SLANDARER','MATLAB'};
+
+figure('Units','normalized','Position',[.02,.05,.6,.85])
 BCC=biChordChart(dataMat,'Label',NameList,'Arrow','on');
 BCC=BCC.draw(); 
 

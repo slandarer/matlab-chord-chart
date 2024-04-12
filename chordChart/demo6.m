@@ -9,6 +9,7 @@ dataMat=dataMat+rand(3,7);
 dataMat(dataMat<1)=0;
 dataMat=dataMat.*1000;
 
+figure('Units','normalized','Position',[.02,.05,.6,.85])
 CC=chordChart(dataMat);
 CC=CC.draw();
 CC.setFont('FontSize',17,'FontName','Cambria')

@@ -1,3 +1,3 @@
 function git_pull
-!git pull origin main
+!git pull origin master
 end 

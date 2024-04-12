@@ -229,17 +229,77 @@ CC.setTickLabelFormat(@(x)sprintf('%0.1e',x))
 ![输入图片说明](gallery/cover7.png)
 
 ___
+## 9 弦末端弧形块单独上色
+```matlab
+% demo8
+% @author : slandarer
+% 公众号  : slandarer随笔
+% 知乎    : slandarer
+rng(3)
+dataMat = randi([1, 15], [7, 22]);
+dataMat(dataMat < 11) = 0;
+dataMat(1, sum(dataMat,1) == 0) = 15;
+colName = {'A2M', 'FGA', 'FGB', 'FGG', 'F11', 'KLKB1', 'SERPINE1', 'VWF',...
+           'THBD', 'TFPI', 'PLAT', 'SERPINA5', 'SERPIND1', 'F2', 'PLG', 'F12',...
+           'SERPINC1', 'SERPINA1', 'PROS1', 'SERPINF2', 'F13A1', 'PROC'};
+rowName = {'Lung', 'Spleen', 'Liver', 'Heart',...
+           'Renal cortex', 'Renal medulla', 'Thyroid'};
+
+figure('Units','normalized', 'Position',[.02, .05, .6, .85])
+CC = chordChart(dataMat, 'rowName',rowName, 'colName',colName, 'Sep',1/80, 'LRadius',1.21);
+CC = CC.draw();
+CC.labelRotate('on')
+
+% 单独设置每一个弦末端方块(Set individual end blocks for each chord)
+% Use obj.setEachSquareF_Prop 
+% or  obj.setEachSquareT_Prop
+% F means from (blocks below)
+% T means to   (blocks above)
+CListT = [173,70,65; 79,135,136]./255;
+% Upregulated:1 | Downregulated:2
+Regulated = rand([7, 22]);
+Regulated = (Regulated < .8) + 1;
+for i = 1:size(Regulated, 1)
+    for j = 1:size(Regulated, 2)
+        CC.setEachSquareT_Prop(i, j, 'FaceColor', CListT(Regulated(i,j),:))
+    end
+end
+% 绘制图例(Draw legend)
+H1 = fill([0,1,0]+100, [1,0,1]+100, CListT(1,:), 'EdgeColor','none');
+H2 = fill([0,1,0]+100, [1,0,1]+100, CListT(2,:), 'EdgeColor','none');
+lgdHdl = legend([H1,H2], {'Upregulated','Downregulated'}, 'AutoUpdate','off', 'Location','best');
+lgdHdl.ItemTokenSize = [12,12];
+lgdHdl.Box = 'off';
+lgdHdl.FontSize = 13;
+
+% 修改下方方块颜色(Modify the color of the blocks below)
+CListF=[128,108,171; 222,208,161; 180,196,229; 209,150,146; 175,201,166;
+        134,156,118; 175,175,173]./255;
+for i=1:7
+    CC.setSquareF_N(i, 'FaceColor',CListF(i,:))
+end
+% 修改弦颜色(Modify chord color)
+for i=1:7
+    for j=1:22
+        CC.setChordMN(i,j, 'FaceColor',CListF(i,:), 'FaceAlpha',.45)
+    end
+end
+```
+![输入图片说明](gallery/S0092-8674(21)00004-0%20P8.png)
+
+___
 # 工具函数完整代码
 ```matlab
-classdef chordChart
+classdef chordChart < handle
+% Copyright (c) 2022-2024, Zhaoxu Liu / slandarer
+% =========================================================================
 % @author : slandarer
 % 公众号  : slandarer随笔
 % 知乎    : slandarer
 % -------------------------------------------------------------------------
-% Zhaoxu Liu (2022). chord chart 弦图 
+% Zhaoxu Liu / slandarer (2024). chord chart 弦图 
 % (https://www.mathworks.com/matlabcentral/fileexchange/116550-chord-chart), 
-% MATLAB Central File Exchange. 检索来源 2022/11/9.
-%
+% MATLAB Central File Exchange. 检索来源 2024/3/31.
 % =========================================================================
 % 使用示例：
 % -------------------------------------------------------------------------
@@ -271,6 +331,16 @@ classdef chordChart
 %   Colors can be adjusted directly using the function `colormap`(demo4)
 % + 可使用函数`tickLabelState`显示刻度标签(demo5)
 %   Use function `tickLabelState` to display tick labels(demo5)
+% -------------------------------------------------------------------------
+% # version 2.1.0
+% + 修复了老版本部分标签错误旋转的bug
+%   Fixed a bug with incorrect rotation of some labels in older versions
+% + 单独设置每一个弦末端方块(demo8)
+%   Set individual end blocks for each chord(demo8)
+%   Use obj.setEachSquareF_Prop 
+%   or  obj.setEachSquareT_Prop
+%   F means from (blocks below)
+%   T means to   (blocks above)
 
     properties
         ax
@@ -284,6 +354,9 @@ classdef chordChart
         % -----------------------------------------------------------
         squareFHdl  % 绘制下方方块的图形对象矩阵
         squareTHdl  % 绘制下上方方块的图形对象矩阵
+        squareFMatHdl % 流入拆分矩阵
+        squareTMatHdl % 流入拆分矩阵
+
         nameFHdl    % 绘制下方文本的图形对象矩阵
         nameTHdl    % 绘制上方文本的图形对象矩阵
         chordMatHdl % 绘制弦的图形对象矩阵
@@ -429,6 +502,7 @@ classdef chordChart
                 for j=sepNumT:-1:1
                     theta1=2*pi-pi*sep1/2-sum(ratioF(1:i))*baseLenF-(i-1)*sepLen;
                     theta2=2*pi-pi*sep1/2-sum(ratioF(1:i+1))*baseLenF-(i-1)*sepLen;
+
                     theta3=pi-pi*sep1/2-sum(ratioT(1:j))*baseLenT-(j-1)*sepLen;
                     theta4=pi-pi*sep1/2-sum(ratioT(1:j+1))*baseLenT-(j-1)*sepLen;
 
@@ -438,8 +512,18 @@ classdef chordChart
                     % 贝塞尔曲线断点计算
                     theta5=(theta2-theta1).*sum(tRowV(1:(sepNumT+1-j)))+theta1;
                     theta6=(theta2-theta1).*sum(tRowV(1:(sepNumT+2-j)))+theta1;
+                    theta=linspace(theta5,theta6,100);
+                    X=cos(theta);Y=sin(theta);
+                    obj.squareFMatHdl(i,j)=fill([1.05.*X,1.15.*X(end:-1:1)],[1.05.*Y,1.15.*Y(end:-1:1)],...
+                        tColor(2,:),'EdgeColor','none','Visible','off');
+
                     theta7=(theta3-theta4).*sum(tColV(1:i))+theta4;
                     theta8=(theta3-theta4).*sum(tColV(1:i+1))+theta4;
+                    theta=linspace(theta7,theta8,100);
+                    X=cos(theta);Y=sin(theta);
+                    obj.squareTMatHdl(i,j)=fill([1.05.*X,1.15.*X(end:-1:1)],[1.05.*Y,1.15.*Y(end:-1:1)],...
+                        tColor(2,:),'EdgeColor','none','Visible','off');
+
                     tPnt1=[cos(theta5),sin(theta5)];
                     tPnt2=[cos(theta6),sin(theta6)];
                     tPnt3=[cos(theta7),sin(theta7)];
@@ -571,6 +655,17 @@ classdef chordChart
         function setSquareT_N(obj,n,varargin)
             set(obj.squareTHdl(n),varargin{:});
         end
+
+        % version 2.1.0 更新
+        % 单独设置每一个弦末端方块
+        function setEachSquareT_Prop(obj,m,n,varargin)
+            set(obj.squareTMatHdl(m,n),'Visible','on',varargin{:})
+        end
+        function setEachSquareF_Prop(obj,m,n,varargin)
+            set(obj.squareFMatHdl(m,n),'Visible','on',varargin{:})
+        end
+
+
         % 批量下方方块属性设置
         function setSquareF_Prop(obj,varargin)
             tDMat=obj.chordTable.Variables;
@@ -636,13 +731,13 @@ classdef chordChart
                     case textHdl(i).Rotation<0&&textHdl(i).Position(2)>0
                         textHdl(i).Rotation=textHdl(i).Rotation+90;
                         textHdl(i).HorizontalAlignment='left';
-                    case textHdl(i).Rotation>0&&textHdl(i).Position(2)>0
+                    case textHdl(i).Rotation>=0&&textHdl(i).Position(2)>0
                         textHdl(i).Rotation=textHdl(i).Rotation-90;
                         textHdl(i).HorizontalAlignment='right';
-                    case textHdl(i).Rotation<0&&textHdl(i).Position(2)<0
+                    case textHdl(i).Rotation<0&&textHdl(i).Position(2)<=0
                         textHdl(i).Rotation=textHdl(i).Rotation+90;
                         textHdl(i).HorizontalAlignment='right';
-                    case textHdl(i).Rotation>0&&textHdl(i).Position(2)<0
+                    case textHdl(i).Rotation>=0&&textHdl(i).Position(2)<=0
                         textHdl(i).Rotation=textHdl(i).Rotation-90;
                         textHdl(i).HorizontalAlignment='left';
                 end
@@ -694,9 +789,9 @@ classdef chordChart
 % 公众号  : slandarer随笔
 % 知乎    : slandarer
 % -------------------------------------------------------------------------
-% Zhaoxu Liu (2022). chord chart 弦图 
+% Zhaoxu Liu / slandarer (2024). chord chart 弦图 
 % (https://www.mathworks.com/matlabcentral/fileexchange/116550-chord-chart), 
-% MATLAB Central File Exchange. 检索来源 2022/11/9.
+% MATLAB Central File Exchange. 检索来源 2024/3/31.
 end
 ```
 ___
@@ -706,5 +801,3 @@ MATLAB弦图绘制能画成这样属实不易，如果有用请留个`star`叭~
 未经允许本代码请勿作商业用途，引用的话可以引用我file exchange上的链接，可使用如下格式：
 
 Zhaoxu Liu (2022). chord chart 弦图 (https://www.mathworks.com/matlabcentral/fileexchange/116550-chord-chart), MATLAB Central File Exchange. 检索来源 2022/8/21.
-
-若转载请保留以上file exchange链接及本文链接！！！

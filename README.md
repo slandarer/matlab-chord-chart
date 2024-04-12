@@ -31,10 +31,6 @@ CC.setLabelRadius(1.4);
 #### fileexchange下载链接
 Zhaoxu Liu (2022). chord chart 弦图 (https://www.mathworks.com/matlabcentral/fileexchange/116550-chord-chart), MATLAB Central File Exchange. 检索来源 2022/11/9.
 
-#### 免登录网盘链接
-链接：https://pan.baidu.com/s/1ameiL3ben43gVVu_hV7SGg?pwd=slan \
-提取码：slan 
-
 ___
 ## biChordChart
 
@@ -66,7 +62,4 @@ BCC.tickLabelState('on')
 #### fileexchange下载链接
 Zhaoxu Liu / slandarer (2022). Digraph chord chart 有向弦图 (https://www.mathworks.com/matlabcentral/fileexchange/121043-digraph-chord-chart), MATLAB Central File Exchange. 检索来源 2022/11/22.
 
-#### 免登录网盘链接
-链接：https://pan.baidu.com/s/1deu8iiel_NJJUITzn5DUYA?pwd=slan \
-提取码：slan 
 

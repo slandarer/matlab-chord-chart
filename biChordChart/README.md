@@ -290,14 +290,16 @@ BCC.tickLabelState('on')
 
 # 完整代码
 ```matlab
-classdef biChordChart
+classdef biChordChart < handle
+% Copyright (c) 2022-2024, Zhaoxu Liu / slandarer
+% =========================================================================
 % @author : slandarer
 % 公众号  : slandarer随笔
 % 知乎    : slandarer
 % -------------------------------------------------------------------------
-% Zhaoxu Liu / slandarer (2023). Digraph chord chart 有向弦图 
+% Zhaoxu Liu / slandarer (2024). Digraph chord chart 有向弦图 
 % (https://www.mathworks.com/matlabcentral/fileexchange/121043-digraph-chord-chart), 
-% MATLAB Central File Exchange. 检索来源 2023/4/1.
+% MATLAB Central File Exchange. 检索来源 2024/3/31.
 %
 % =========================================================================
 % 使用示例：
@@ -483,6 +485,7 @@ classdef biChordChart
                 cumsumV=[0,cumsum([obj.dataMat(i,:),obj.dataMat(:,i).'])];
                 for j=1:(2*numC+1)
                     rotation=obj.thetaFullSet(i,j)/pi*180;
+                    if ~isnan(obj.thetaFullSet(i,j))
                     if rotation>90&&rotation<270
                         rotation=rotation+180;
                         obj.thetaTickLabelHdl(i,j)=text(cos(obj.thetaFullSet(i,j)).*1.2,sin(obj.thetaFullSet(i,j)).*1.2,num2str(cumsumV(j)),...
@@ -490,6 +493,7 @@ classdef biChordChart
                     else
                         obj.thetaTickLabelHdl(i,j)=text(cos(obj.thetaFullSet(i,j)).*1.2,sin(obj.thetaFullSet(i,j)).*1.2,num2str(cumsumV(j)),...
                             'Rotation',rotation,'FontSize',9,'FontName','Arial','Visible','off','UserData',cumsumV(j));
+                    end
                     end
                 end
             end
@@ -534,7 +538,9 @@ classdef biChordChart
         function setTickFont(obj,varargin)
             for m=1:size(obj.thetaFullSet,1)
                 for n=1:size(obj.thetaFullSet,2)
-                    set(obj.thetaTickLabelHdl(m,n),varargin{:})
+                    if obj.thetaTickLabelHdl(m,n)
+                        set(obj.thetaTickLabelHdl(m,n),varargin{:})
+                    end
                 end
             end
         end
@@ -563,13 +569,13 @@ classdef biChordChart
                     case textHdl(i).Rotation<0&&textHdl(i).Position(2)>0
                         textHdl(i).Rotation=textHdl(i).Rotation+90;
                         textHdl(i).HorizontalAlignment='left';
-                    case textHdl(i).Rotation>0&&textHdl(i).Position(2)>0
+                    case textHdl(i).Rotation>=0&&textHdl(i).Position(2)>0
                         textHdl(i).Rotation=textHdl(i).Rotation-90;
                         textHdl(i).HorizontalAlignment='right';
-                    case textHdl(i).Rotation<0&&textHdl(i).Position(2)<0
+                    case textHdl(i).Rotation<0&&textHdl(i).Position(2)<=0
                         textHdl(i).Rotation=textHdl(i).Rotation+90;
                         textHdl(i).HorizontalAlignment='right';
-                    case textHdl(i).Rotation>0&&textHdl(i).Position(2)<0
+                    case textHdl(i).Rotation>=0&&textHdl(i).Position(2)<=0
                         textHdl(i).Rotation=textHdl(i).Rotation-90;
                         textHdl(i).HorizontalAlignment='left';
                 end
@@ -588,15 +594,21 @@ classdef biChordChart
         function tickLabelState(obj,state)
             for m=1:size(obj.thetaFullSet,1)
                 for n=1:size(obj.thetaFullSet,2)
+                    if obj.thetaTickLabelHdl(m,n)
+                    if ~(n<size(obj.thetaFullSet,2)&&abs(obj.thetaFullSet(m,n)-obj.thetaFullSet(m,n+1))<eps)
                     set(obj.thetaTickLabelHdl(m,n),'Visible',state)
+                    end
+                    end
                 end
             end
         end
         function setTickLabelFormat(obj,func)
             for m=1:size(obj.thetaFullSet,1)
                 for n=1:size(obj.thetaFullSet,2)
+                    if obj.thetaTickLabelHdl(m,n)
                     tStr=func(get(obj.thetaTickLabelHdl(m,n),'UserData'));
                     set(obj.thetaTickLabelHdl(m,n),'String',tStr)
+                    end
                 end
             end
         end
@@ -605,7 +617,15 @@ classdef biChordChart
 % 公众号  : slandarer随笔
 % 知乎    : slandarer
 % -------------------------------------------------------------------------
-% Zhaoxu Liu / slandarer (2023). Digraph chord chart 有向弦图 
+% Zhaoxu Liu / slandarer (2024). Digraph chord chart 有向弦图 
 % (https://www.mathworks.com/matlabcentral/fileexchange/121043-digraph-chord-chart), 
-% MATLAB Central File Exchange. 检索来源 2023/4/1.
+% MATLAB Central File Exchange. 检索来源 2024/3/31.
 end
+```
+
+完
+MATLAB弦图绘制能画成这样属实不易，如果有用请留个star叭~
+
+未经允许本代码请勿作商业用途，引用的话可以引用我file exchange上的链接，可使用如下格式：
+
+Zhaoxu Liu (2024). Digraph chord chart 有向弦图 (https://www.mathworks.com/matlabcentral/fileexchange/121043-digraph-chord-chart), MATLAB Central File Exchange. 检索来源 2024/3/31.
